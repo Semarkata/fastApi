@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Body
 from http import HTTPStatus as http_response
 import mockdata
+from model.movie import Movie
 
 app = FastAPI(
     title='Fast Api',
@@ -31,40 +32,20 @@ def get_movies_by_category(category: str):
     return 'No Movie Found'
 
 @app.post('/movies', tags=['Movies'])
-def create_movie(
-        id: int = Body(),
-        title: str = Body(),
-        overview: str = Body(),
-        release_date: str = Body(),
-        rating: float = Body(),
-        category: str = Body(),
-):
-    mockdata.movies.append({
-        'id': id,
-        'title': title,
-        'overview': overview,
-        'release_date': release_date,
-        'rating': rating,
-        'category': category
-    })
+def create_movie(movie: Movie):
+    mockdata.movies.append(movie)
+
     return http_response.CREATED
 
 @app.put('/movies/{id}', tags=[''])
-def update_movie(
-        id: int,
-        title: str = Body(),
-        overview: str = Body(),
-        release_date: str = Body(),
-        rating: float = Body(),
-        category: str = Body(),
-):
-    for movie in mockdata.movies:
-        if movie['id'] == id:
-            movie['title'] = title
-            movie['overview'] = overview
-            movie['release_date'] = release_date
-            movie['rating'] = rating
-            movie['category'] = category
+def update_movie(movie_id: int, movie: Movie):
+    for internal_movie in mockdata.movies:
+        if internal_movie['id'] == movie_id:
+            internal_movie['title'] = movie.title
+            internal_movie['overview'] = movie.overview
+            internal_movie['release_date'] = movie.release_date
+            internal_movie['rating'] = movie.rating
+            internal_movie['category'] = movie.category
             return http_response.OK
         else:
             return http_response.NOT_FOUND
